@@ -17,6 +17,16 @@ enforces the mechanical parts of this contract.
 `.agents/skills/` is the common denominator of Codex, opencode and Kimi Code,
 so it holds the canonical source. Only Claude Code needs a mirror.
 
+Since v1.1.0, `python install.py --project <path>` installs **both**
+project-level surfaces in one command: the `.agents/skills/planscope`
+copy (skipped with `SKIP canonical source already present` when the
+destination is the Planscope repository itself) and the
+`.claude/skills/planscope` mirror. `--check --project <path>` validates
+both. For GitHub-based installs, Claude Code can also consume the
+plugin marketplace manifest at `.claude-plugin/marketplace.json`, which
+points at the same canonical source — there is still exactly one
+SKILL.md implementation.
+
 ## Frontmatter rules
 
 | Field | Claude Code | Codex CLI | opencode | Kimi Code |

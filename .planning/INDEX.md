@@ -2,22 +2,23 @@
 
 ## Active Release
 
-v1.1
+v1.1.0
 
 Path:
-releases/v1.1
+
+releases/v1.1.0
 
 ## Current Focus
 
-T-002 Add .claude-plugin/marketplace.json
+T-403
 
 ## Current Phase
 
-P1 GitHub Release
+P4
 
 ## Next Action
 
-Add .claude-plugin/marketplace.json for Claude Code GitHub install.
+T-404 Verify v1.1.0 in Codex CLI from a fresh install in a clean
 
 ## Current Blockers
 
@@ -32,13 +33,13 @@ Roadmap:
 ROADMAP.md
 
 Active Plan:
-releases/v1.1/PLAN.md
+releases/v1.1.0/PLAN.md
 
 Active Knowledge:
-releases/v1.1/KNOWLEDGE.md
+releases/v1.1.0/KNOWLEDGE.md
 
 Recent Log:
-releases/v1.1/LOG.md
+releases/v1.1.0/LOG.md
 
 ## Critical Constraints
 

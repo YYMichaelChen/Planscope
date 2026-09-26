@@ -34,6 +34,16 @@ def test_open_rejects_bad_version(tmp_path):
     assert "vX.Y" in result.stderr
 
 
+def test_patch_version_supported(tmp_path):
+    """T-303: vX.Y.Z versions are valid."""
+    planning = init_project(tmp_path)
+    result = run_plan("open", "v1.1.0", cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert (planning / "releases" / "v1.1.0" / "PLAN.md").is_file()
+    doctor = run_plan("doctor", cwd=tmp_path)
+    assert doctor.returncode == 0, doctor.stdout
+
+
 def test_open_duplicate_fails(tmp_path):
     init_project(tmp_path)
     run_plan("open", "v0.1", cwd=tmp_path)

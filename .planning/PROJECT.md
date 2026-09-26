@@ -55,3 +55,14 @@ Skill renamed from working name `scoped-planning-with-files` to `planscope`.
 
 Reason:
 Matches the repository name; satisfies opencode's name-equals-directory rule.
+
+### D-003
+
+Decision:
+Markdown stays the only canonical planning state — no `state.json`,
+database or shadow caches in v1.x.
+
+Reason:
+Mechanical consistency (release transitions, status validation, INDEX
+projection) belongs to `scripts/plan.py`; a second machine-readable
+state layer would drift from the Markdown source of truth.

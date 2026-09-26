@@ -11,10 +11,16 @@ mirrors the canonical source there (copy by default, directory
 junction/symlink with --link for live development).
 
 Usage:
-    python install.py --project [PATH] [--link]   # -> PATH/.claude/skills/planscope
+    python install.py --project [PATH] [--link]   # -> PATH/.agents/skills/ + PATH/.claude/skills/
     python install.py --global [--link]           # -> ~/.claude/skills/planscope
     python install.py --global-agents [--link]    # -> ~/.agents/skills/planscope
     python install.py --check [--project PATH]    # report drift, no changes
+
+--project installs BOTH project-level surfaces from one command:
+the canonical copy at .agents/skills/planscope (native for Codex CLI,
+opencode and Kimi Code) and the .claude/skills/planscope mirror Claude
+Code requires. When the destination resolves to this repository's own
+canonical source, the installer skips it instead of overwriting itself.
 """
 
 from __future__ import annotations
@@ -95,6 +101,12 @@ def trees_equal(a: Path, b: Path) -> bool:
 
 def install(dest: Path, link: bool, check: bool) -> int:
     src = require_source()
+    # Canonical source protection: never overwrite the skill's own home.
+    # This also covers a junction/symlink at dest that already points at
+    # the canonical source (Path.resolve follows links on all platforms).
+    if dest.resolve() == SOURCE.resolve():
+        print(f"SKIP    {dest} (canonical source already present)")
+        return 0
     if check:
         if not dest.exists():
             print(f"MISSING   {dest}")
@@ -121,7 +133,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Install the planscope skill.")
     targets = parser.add_argument_group("targets (at least one required)")
     targets.add_argument("--project", nargs="?", const=".", default=None,
-                         help="project root (default: cwd) -> .claude/skills/")
+                         help="project root (default: cwd) -> .agents/skills/ + .claude/skills/")
     targets.add_argument("--global", dest="global_claude", action="store_true",
                          help="-> ~/.claude/skills/")
     targets.add_argument("--global-agents", action="store_true",
@@ -138,7 +150,10 @@ def main(argv=None) -> int:
     rc = 0
     dests = []
     if args.project is not None:
-        dests.append(Path(args.project).resolve() / ".claude" / "skills" / SKILL_NAME)
+        project = Path(args.project).resolve()
+        # T-301: one command -> every supported project-level surface.
+        dests.append(project / ".agents" / "skills" / SKILL_NAME)
+        dests.append(project / ".claude" / "skills" / SKILL_NAME)
     if args.global_claude:
         dests.append(Path.home() / ".claude" / "skills" / SKILL_NAME)
     if args.global_agents:

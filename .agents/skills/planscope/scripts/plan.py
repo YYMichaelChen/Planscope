@@ -7,7 +7,8 @@ Usage:
 Commands:
     init                 Create .planning/ with INDEX, PROJECT, ROADMAP
     status               Show active release, current work, file budgets
-    open <version>       Start a new release (e.g. v0.8)
+    open <version>       Start a new release (e.g. v0.8, v1.1.0)
+    sync                 Project PLAN state into INDEX (mechanical)
     compact              Mechanical hygiene: budgets, illegal files, LOG rotation
     close <version>      Archive a finished release
     doctor               Validate planning structure (non-zero exit on failure)
@@ -41,8 +42,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_status.set_defaults(func=commands.cmd_status)
 
     p_open = sub.add_parser("open", help="open a new release")
-    p_open.add_argument("version", help="release version, e.g. v0.8")
+    p_open.add_argument("version", help="release version, e.g. v0.8 or v1.1.0")
     p_open.set_defaults(func=commands.cmd_open)
+
+    p_sync = sub.add_parser("sync", help="project PLAN state into INDEX")
+    p_sync.set_defaults(func=commands.cmd_sync)
 
     p_compact = sub.add_parser("compact", help="mechanical compaction checks")
     p_compact.set_defaults(func=commands.cmd_compact)

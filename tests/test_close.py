@@ -13,7 +13,7 @@ def test_close_blocked_by_unfinished_phases(tmp_path):
     _fresh_release(tmp_path)
     result = run_plan("close", "v0.1", cwd=tmp_path)
     assert result.returncode == 2
-    assert "unfinished phases" in result.stderr
+    assert "not complete" in result.stderr
 
 
 def test_close_blocked_by_missing_summary(tmp_path):

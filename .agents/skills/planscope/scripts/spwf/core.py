@@ -41,7 +41,14 @@ BUDGETS = {
     "SUMMARY.md": (100, 150),
 }
 
-VERSION_RE = re.compile(r"^v\d+\.\d+$")
+# Canonical phase states (v1.1.0 T-104). Anything else — including a
+# missing Status — is invalid and must never pass the close gate.
+PHASE_STATUSES = {"pending", "in_progress", "complete"}
+
+# Canonical release-level PLAN Status values.
+RELEASE_STATUSES = {"in_progress", "complete"}
+
+VERSION_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?$")
 
 # Lines rotated out of LOG.md are kept here; archive/ is excluded from
 # the illegal-filename check.
@@ -173,12 +180,46 @@ def parse_index(index_path: Path) -> IndexInfo:
 
 
 @dataclass
+class PhaseInfo:
+    heading: str
+    status: str  # raw status value; "" when the phase has no Status line
+
+
+@dataclass
 class PlanInfo:
     status: str
     current_phase: str
     current_task: str
     next_action: str
-    open_phases: list  # phase headings whose Status is pending/in_progress
+    blockers: str
+    phases: list  # list[PhaseInfo], in document order
+
+    @property
+    def open_phases(self) -> list:
+        """Phase headings whose status is pending or in_progress."""
+        return [p.heading for p in self.phases if p.status in ("pending", "in_progress")]
+
+    @property
+    def not_complete_phases(self) -> list:
+        """Phase headings whose status is not exactly 'complete'."""
+        return [p.heading for p in self.phases if p.status != "complete"]
+
+    @property
+    def invalid_phases(self) -> list:
+        """Phases with a missing or non-canonical status value."""
+        return [p for p in self.phases if p.status not in PHASE_STATUSES]
+
+
+def _phase_status(body: str) -> str:
+    """Extract the Status value of a phase section body ('' if absent)."""
+    match = re.search(r"^Status:\s*\n?(\S+)?", body)
+    if not match:
+        return ""
+    status = (match.group(1) or "").strip()
+    if not status:
+        following = body[match.end():].strip().splitlines()
+        status = following[0].strip() if following else ""
+    return status
 
 
 def parse_plan(plan_path: Path) -> PlanInfo:
@@ -197,26 +238,19 @@ def parse_plan(plan_path: Path) -> PlanInfo:
         elif line == "Task:" and i + 1 < len(current_lines):
             task = current_lines[i + 1]
 
-    open_phases = []
+    phases = []
     for match in re.finditer(r"^###\s+(\S+.*)$", text, re.MULTILINE):
         heading = match.group(1).strip()
         body = section_body(text, heading) or ""
-        status_match = re.search(r"^Status:\s*\n?(\S+)?", body)
-        status = ""
-        if status_match:
-            status = (status_match.group(1) or "").strip()
-            if not status:
-                following = body[status_match.end():].strip().splitlines()
-                status = following[0].strip() if following else ""
-        if status in ("pending", "in_progress"):
-            open_phases.append(heading)
+        phases.append(PhaseInfo(heading=heading, status=_phase_status(body)))
 
     return PlanInfo(
         status=value_of("Status"),
         current_phase=phase,
         current_task=task,
         next_action=value_of("Next Action"),
-        open_phases=open_phases,
+        blockers=value_of("Blockers"),
+        phases=phases,
     )
 
 
@@ -239,7 +273,12 @@ def illegal_planning_files(planning_root: Path) -> list:
     """
     illegal = []
     for child in sorted(planning_root.iterdir()):
-        if child.is_file() and child.name not in ALLOWED_FILENAMES:
+        if child.is_dir():
+            # Unknown directories at the planning root are not permitted
+            # (e.g. .planning/temp/, .planning/drafts/).
+            if child.name not in ("releases", "archive"):
+                illegal.append(child.relative_to(planning_root).as_posix() + "/")
+        elif child.name not in ALLOWED_FILENAMES:
             illegal.append(child.relative_to(planning_root).as_posix())
     for group in ("releases",):
         group_dir = planning_root / group
@@ -272,6 +311,7 @@ def render_template(name: str, version: str = "") -> str:
 def validate_version(version: str) -> str:
     if not VERSION_RE.match(version):
         raise PlanError(
-            f"Invalid version {version!r}. Expected format: vX.Y (e.g. v0.8)."
+            f"Invalid version {version!r}. Expected format: vX.Y or vX.Y.Z "
+            "(e.g. v0.8, v1.1.0)."
         )
     return version

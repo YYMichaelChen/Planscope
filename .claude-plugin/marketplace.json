@@ -1,0 +1,13 @@
+{
+  "name": "planscope",
+  "owner": {
+    "name": "YYMichaelChen"
+  },
+  "plugins": [
+    {
+      "name": "planscope",
+      "source": "./.agents/skills/planscope",
+      "description": "Scoped file-based planning for long-running software projects: INDEX routing, release-scoped plans, selective knowledge loading, rolling logs, and release archiving."
+    }
+  ]
+}

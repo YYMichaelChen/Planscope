@@ -13,9 +13,10 @@ loading the entire planning history into the agent's context window.
 Persistent Knowledge → Scoped Storage → Context Routing → Small Working Set → Agent
 ```
 
-See [skill-development-plan.md](skill-development-plan.md) for the full design
-rationale, and [docs/compatibility.md](docs/compatibility.md) for the
-four-tool compatibility matrix.
+See [docs/design.md](docs/design.md) for the full design rationale,
+[docs/v1.1.0-specification.md](docs/v1.1.0-specification.md) for the
+v1.1.0 hardening specification, and [docs/compatibility.md](docs/compatibility.md)
+for the four-tool compatibility matrix.
 
 ## Repository layout
 
@@ -25,9 +26,15 @@ four-tool compatibility matrix.
 ├── templates/                INDEX / PROJECT / ROADMAP / PLAN / KNOWLEDGE / LOG / SUMMARY
 └── scripts/plan.py           helper CLI (Python 3, standard library only)
 
+.claude-plugin/marketplace.json   Claude Code plugin marketplace manifest
 install.py                    syncs the skill into tool-specific directories
 tests/                        pytest suite, incl. four-tool compliance checks
+docs/                         product documentation (design, specs, compatibility)
+.planning/                    active planning state (dogfooded with Planscope)
 ```
+
+`docs/` holds product documentation; `.planning/` holds active planning
+state. Keep the two distinct — documentation is not execution context.
 
 ## Supported tools
 
@@ -45,8 +52,8 @@ One skill source, four agents:
 Clone this repository, then:
 
 ```bash
-# into the current project for Claude Code
-# (Codex / opencode / Kimi Code already discover .agents/skills/)
+# into the current project for ALL supported tools:
+# .agents/skills/ (Codex / opencode / Kimi Code, native) + .claude/skills/ (Claude Code)
 python install.py --project .
 
 # live development: junction/symlink instead of copy
@@ -62,6 +69,10 @@ python install.py --global-agents
 python install.py --check --project . --global --global-agents
 ```
 
+When run inside the Planscope repository itself, the installer skips
+the canonical source at `.agents/skills/planscope` instead of
+overwriting it.
+
 ## Use
 
 Once the skill is visible to your agent, just work. The agent reads
@@ -73,9 +84,10 @@ The helper CLI handles the mechanical operations:
 python .agents/skills/planscope/scripts/plan.py init        # create .planning/
 python .agents/skills/planscope/scripts/plan.py open v0.1   # start a release
 python .agents/skills/planscope/scripts/plan.py status      # where am I?
+python .agents/skills/planscope/scripts/plan.py sync        # mirror PLAN state into INDEX
 python .agents/skills/planscope/scripts/plan.py compact     # hygiene checks + LOG rotation
-python .agents/skills/planscope/scripts/plan.py close v0.1  # archive the release
-python .agents/skills/planscope/scripts/plan.py doctor      # validate structure
+python .agents/skills/planscope/scripts/plan.py close v0.1  # final commit: archive + clear
+python .agents/skills/planscope/scripts/plan.py doctor      # validate invariants
 ```
 
 ## Develop

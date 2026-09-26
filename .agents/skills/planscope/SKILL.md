@@ -58,21 +58,58 @@ Commands:
 
 - `init` — create `.planning/` with INDEX, PROJECT, ROADMAP
 - `status` — show active release, current phase/task, file budgets
-- `open <version>` — start a new release (e.g. `open v0.8`)
+- `open <version>` — start a new release (e.g. `open v0.8`, `open v1.1.0`);
+  refuses while another release is active
+- `sync` — project PLAN current state into INDEX (mechanical)
 - `compact` — mechanical hygiene: budget checks, illegal-file
   detection, INDEX pointer validation, LOG rotation
-- `close <version>` — archive a finished release, update INDEX
-- `doctor` — validate planning structure, non-zero exit on failure
+- `close <version>` — final mechanical commit of a finished release:
+  archives it and clears the active working set
+- `doctor` — validate planning invariants, non-zero exit on failure
 
 The CLI performs mechanical operations only. Semantic work —
 summarizing phases, merging findings, promoting knowledge — is your
 job, guided by the rules below.
+
+## Single Active Release
+
+Planscope supports at most one active release. Close the current
+release before opening another. If `open` refuses, close or resolve
+the existing release first — never work around it by hand-editing
+INDEX release pointers.
+
+## PLAN Authority
+
+PLAN is the canonical source for the active release's current phase,
+task, blockers and next action. INDEX is a compact routing projection
+and should be kept synchronized.
+
+After manually editing PLAN current state, run `sync` to project the
+changes into INDEX mechanically. Do not hand-edit INDEX current-state
+fields when `sync` can derive them.
 
 ## Context Routing
 
 Do not read all planning files automatically.
 
 Before loading planning context, classify the current task.
+
+### Search before full read
+
+Prefer search and bounded section reads over full planning-file reads.
+
+A planning file is a retrieval source, not an atomic context unit:
+
+- For PLAN, prioritize `Current`, the active phase, `Blockers` and
+  `Next Action`. Do not automatically read every completed phase.
+  Read the full PLAN mainly for planning, replanning, release review
+  or recovery.
+- For KNOWLEDGE, search first by Task ID, Phase ID, Finding ID,
+  Decision ID or keywords, then read the relevant sections. Do not
+  read the entire KNOWLEDGE file by default.
+- For PROJECT, read only when architecture, stable constraints,
+  cross-release decisions or project conventions matter.
+- Never automatically load archive content.
 
 ### Micro changes
 
@@ -222,7 +259,7 @@ Do not create custom ID formats.
 After meaningful progress:
 
 - update PLAN when task or phase state changes
-- update INDEX when current focus or next action changes
+- run `sync` to mirror PLAN current state into INDEX
 - update KNOWLEDGE only for reusable knowledge
 - update LOG only when recent execution context is worth preserving
 
@@ -255,30 +292,45 @@ Preserve information that would affect future decisions.
 
 ## Release Closing
 
-When the active release is complete:
+Complete semantic release work BEFORE running the mechanical close
+command. `close` is the final commit of a release, not a cleanup step.
 
-1. verify its acceptance criteria
+Semantic close (your job), in order:
+
+1. verify the release acceptance criteria
 2. create SUMMARY.md
-3. review KNOWLEDGE.md
-4. promote durable project-scoped knowledge into PROJECT.md
-5. archive release planning files (`plan.py close <version>`)
-6. update ROADMAP.md
-7. update INDEX.md
+3. review KNOWLEDGE.md and promote durable project-scoped knowledge
+   into PROJECT.md
+4. update ROADMAP.md
+5. set PLAN `## Status` to `complete`
 
-Archived releases must not remain part of the default working context.
+Mechanical close (CLI):
+
+6. run `plan.py close <version>` — it verifies that every phase is
+   `complete` and SUMMARY.md exists, archives the release, and clears
+   the active working set
+
+## Archive Boundary
+
+After close, archived content is historical and must not remain part
+of the active working context. Do not reopen archive to perform normal
+promotion or planning work — that work belongs to semantic close.
 
 ## Recovery
 
 After context loss or a new session:
 
 1. read INDEX.md
-2. read the active PLAN.md
+2. read the active PLAN.md current state (`Current`, active phase,
+   `Blockers`, `Next Action`)
 3. inspect Git state if useful
-4. search relevant KNOWLEDGE.md
-5. read recent LOG.md only if necessary
+4. search relevant KNOWLEDGE.md sections
+5. read recent LOG.md only if execution continuity requires it
 6. continue from the recorded next action
 
-Do not recover by loading all planning history.
+Recovery must not automatically expand into PROJECT.md, ROADMAP.md,
+full KNOWLEDGE.md or archive — load those only when the task requires
+them. Do not recover by loading all planning history.
 
 ## Core Principle
 
