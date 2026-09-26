@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest-tmp/
+.pytest_cache/
+
+# local dev junction created by `install.py --project . --link`
+# (canonical skill source already lives at .agents/skills/planscope/)
+.claude/skills/planscope
