@@ -3,33 +3,31 @@
 ## Current State
 
 Phase:
-[Pn]
+P1
 
 Task:
-[T-xxx]
+T-002
 
 Next:
-[next action]
+Add .claude-plugin/marketplace.json.
 
 Blockers:
 None.
 
 ## Recent Activity
 
-### [date]
+### 2026-09-26
 
 Completed:
+T-001
 
-[important work]
+Changed:
+Repository published to https://github.com/YYMichaelChen/Planscope
+with annotated tag v1.0 and GitHub Release v1.0.
 
 Validation:
 
-[important validation only]
+`python -m pytest tests/` — 29 passed; `plan.py doctor` — 0 failures.
 
 Result:
-
-[pass / fail / partial]
-
-Promoted:
-
-[F-xxx / D-xxx if applicable]
+Pass.

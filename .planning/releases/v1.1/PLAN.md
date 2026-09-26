@@ -22,7 +22,7 @@ Phase:
 P1
 
 Task:
-T-001
+T-002
 
 ## Phases
 
@@ -33,7 +33,7 @@ in_progress
 
 Tasks:
 
-- [ ] T-001 Push repository to GitHub and tag v1.0
+- [x] T-001 Push repository to GitHub and tag v1.0
 - [ ] T-002 Add .claude-plugin/marketplace.json for Claude Code GitHub install
 
 ### P2 Four-Tool Verification
@@ -54,4 +54,4 @@ None.
 
 ## Next Action
 
-T-001 Push repository to GitHub and tag v1.0.
+T-002 Add .claude-plugin/marketplace.json for Claude Code GitHub install.

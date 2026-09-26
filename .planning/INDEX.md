@@ -9,7 +9,7 @@ releases/v1.1
 
 ## Current Focus
 
-T-001 Push repository to GitHub and tag v1.0
+T-002 Add .claude-plugin/marketplace.json
 
 ## Current Phase
 
@@ -17,7 +17,7 @@ P1 GitHub Release
 
 ## Next Action
 
-Push repository to GitHub and tag v1.0.
+Add .claude-plugin/marketplace.json for Claude Code GitHub install.
 
 ## Current Blockers
 
