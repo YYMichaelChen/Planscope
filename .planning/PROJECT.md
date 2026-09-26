@@ -28,8 +28,10 @@ directories (copy, or junction/symlink with `--link`).
 
 ## Development Conventions
 
-- `python -m pytest tests/` must stay green; `tests/test_compat.py` is
-  the four-tool compliance guard.
+- `python -m pytest tests/ --basetemp=.pytest-tmp` must stay green
+  (the default pytest temp root is not writable on the primary
+  Windows dev machine); `tests/test_compat.py` is the four-tool
+  compliance guard.
 - Planning for this repo itself lives in `.planning/` (dogfooding).
 
 ## Stable Domain Knowledge

@@ -2,23 +2,23 @@
 
 ## Active Release
 
-v1.1.0
+none
 
 Path:
 
-releases/v1.1.0
+[none]
 
 ## Current Focus
 
-T-403
+None.
 
 ## Current Phase
 
-P4
+None.
 
 ## Next Action
 
-T-404 Verify v1.1.0 in Codex CLI from a fresh install in a clean
+Open the next release or select new work.
 
 ## Current Blockers
 
@@ -33,13 +33,13 @@ Roadmap:
 ROADMAP.md
 
 Active Plan:
-releases/v1.1.0/PLAN.md
+[none]
 
 Active Knowledge:
-releases/v1.1.0/KNOWLEDGE.md
+[none]
 
 Recent Log:
-releases/v1.1.0/LOG.md
+[none]
 
 ## Critical Constraints
 

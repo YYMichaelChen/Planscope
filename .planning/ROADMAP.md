@@ -16,9 +16,15 @@ three-tool verification moved to v1.1.0 P4.)
 Lifecycle/context/distribution hardening: atomic release activation
 and clearing, single-active-release invariant, strict phase statuses,
 `plan sync`, expanded doctor, collision-safe LOG rotation, unified
-project install, patch versions. (In progress.)
+project install, patch versions. (Complete — tagged v1.1.0.)
 
 ## Later
 
-Only after v1.x usage proves the need: machine-readable plan state,
-semantic compaction aids, plugin marketplace polish.
+Post-v1.1 real-usage observation (per v1.1.0 spec §36) before any new
+architecture: how large active context becomes, how often manual
+compaction and INDEX drift occur, how often archive is reopened, which
+documents grow too fast, which CLI operations actually save agent
+work. Includes fresh-install verification in Codex CLI, opencode and
+Kimi Code (deferred T-404..T-406). Only after v1.x usage proves the
+need: machine-readable plan state, semantic compaction aids, plugin
+marketplace polish.

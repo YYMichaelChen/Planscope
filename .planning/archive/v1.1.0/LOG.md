@@ -6,15 +6,34 @@ Phase:
 P4
 
 Task:
-T-403
+T-407
 
 Next:
-T-404 Verify v1.1.0 in Codex CLI from a fresh install.
+None — release closed and archived; tag v1.1.0 created.
 
 Blockers:
 None.
 
 ## Recent Activity
+
+### 2026-09-27
+
+Completed:
+T-407 release close and archive; cleanup of outdated v1.1 planning
+(archive/v1.1 removed — recoverable from git history at d1407de).
+
+Changed:
+Semantic close of v1.1.0: SUMMARY.md written; F-001 promoted to
+PROJECT.md Development Conventions; ROADMAP.md updated (v1.1.0
+complete, post-release observation items for §36, deferred T-404..T-406
+moved to Later); PLAN Status complete. Outdated v1.1 archive deleted.
+
+Validation:
+
+`plan sync` + `plan close v1.1.0` + `plan doctor` — see below.
+
+Result:
+Pass.
 
 ### 2026-09-27
 

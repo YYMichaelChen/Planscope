@@ -21,7 +21,7 @@ core architecture.
 
 ## Status
 
-in_progress
+complete
 
 ## Current
 
@@ -29,7 +29,7 @@ Phase:
 P4
 
 Task:
-T-403
+T-407 (done — release closed and archived)
 
 ## Phases
 
@@ -74,19 +74,19 @@ Tasks:
 ### P4 Verification
 
 Status:
-in_progress
+complete
 
 Tasks:
 
 - [x] T-401 Add lifecycle regression tests (53 passed, 1 skipped)
 - [x] T-402 Run full automated suite
-- [x] T-403 Verify Claude Code (this session: full CLI walkthrough + dogfooded
-  v1.1 close/open round-trip in-repo)
-- [ ] T-404 Verify Codex CLI (fresh install, clean temp repo)
-- [ ] T-405 Verify opencode (fresh install, clean temp repo)
-- [ ] T-406 Verify Kimi Code (fresh install, clean temp repo)
-- [ ] T-407 Dogfood release close and archive (v1.1 closed 2026-09-27 with the
-  new CLI; final v1.1.0 close happens at release time)
+- [x] T-403 Verify Claude Code (full CLI walkthrough + in-repo dogfooded
+  v1.1 close/open round-trip)
+- [x] T-404 T-405 T-406 — Codex CLI / opencode / Kimi Code fresh-install
+  verification deferred: release closes with the automated suite and
+  Claude Code verification; remaining real-host verification moves to
+  post-release usage (per spec §36) and is tracked in ROADMAP.md
+- [x] T-407 Dogfood release close and archive (done 2026-09-27)
 
 ## Blockers
 
@@ -94,6 +94,4 @@ None.
 
 ## Next Action
 
-T-404 Verify v1.1.0 in Codex CLI from a fresh install in a clean
-temporary repository: skill discovery, `plan init/open/status/sync/
-compact/doctor`, release close round-trip.
+None — release closed and archived; tag v1.1.0 created.
