@@ -72,3 +72,85 @@ def test_doctor_ignores_archive_contents(tmp_path):
     (archived / "anything.md").write_text("old", encoding="utf-8")
     result = run_plan("doctor", cwd=tmp_path)
     assert result.returncode == 0, result.stdout
+
+
+# ---- T-213 full PLAN -> INDEX projection drift -------------------------------
+
+def _synced_release(tmp_path):
+    """Open a release and sync INDEX so it mirrors PLAN exactly."""
+    planning = init_project(tmp_path)
+    run_plan("open", "v0.1", cwd=tmp_path)
+    result = run_plan("sync", cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+    return planning
+
+
+def _edit_index(planning, old, new):
+    index = planning / "INDEX.md"
+    index.write_text(
+        index.read_text(encoding="utf-8").replace(old, new),
+        encoding="utf-8",
+    )
+
+
+def test_doctor_warns_task_drift(tmp_path):
+    planning = _synced_release(tmp_path)
+    _edit_index(planning, "## Current Focus\n\nT-001", "## Current Focus\n\nT-999")
+    result = run_plan("doctor", cwd=tmp_path)
+    assert result.returncode == 0  # drift is a warning, not a failure
+    assert "WARN" in result.stdout
+    assert "Current Focus" in result.stdout
+    assert "stale" in result.stdout
+
+
+def test_doctor_warns_phase_drift(tmp_path):
+    planning = _synced_release(tmp_path)
+    _edit_index(planning, "## Current Phase\n\nP1", "## Current Phase\n\nP9")
+    result = run_plan("doctor", cwd=tmp_path)
+    assert result.returncode == 0
+    assert "Current Phase" in result.stdout
+
+
+def test_doctor_warns_next_action_drift(tmp_path):
+    planning = _synced_release(tmp_path)
+    _edit_index(
+        planning,
+        "## Next Action\n\nT-001 [single concrete next action]",
+        "## Next Action\n\ndo something else",
+    )
+    result = run_plan("doctor", cwd=tmp_path)
+    assert result.returncode == 0
+    assert "Next Action" in result.stdout
+
+
+def test_doctor_warns_blocker_drift(tmp_path):
+    planning = _synced_release(tmp_path)
+    _edit_index(planning, "## Current Blockers\n\nNone.", "## Current Blockers\n\nghost blocker")
+    result = run_plan("doctor", cwd=tmp_path)
+    assert result.returncode == 0
+    assert "Current Blockers" in result.stdout
+
+
+def test_sync_repairs_all_projection_drift(tmp_path):
+    planning = _synced_release(tmp_path)
+    # Break every synchronized field at once.
+    _edit_index(planning, "## Current Focus\n\nT-001", "## Current Focus\n\nT-999")
+    _edit_index(planning, "## Current Phase\n\nP1", "## Current Phase\n\nP9")
+    _edit_index(
+        planning,
+        "## Next Action\n\nT-001 [single concrete next action]",
+        "## Next Action\n\ndo something else",
+    )
+    _edit_index(planning, "## Current Blockers\n\nNone.", "## Current Blockers\n\nghost blocker")
+
+    doctor = run_plan("doctor", cwd=tmp_path)
+    assert doctor.returncode == 0
+    for field in ("Current Focus", "Current Phase", "Next Action", "Current Blockers"):
+        assert field in doctor.stdout
+
+    sync = run_plan("sync", cwd=tmp_path)
+    assert sync.returncode == 0, sync.stderr
+
+    doctor = run_plan("doctor", cwd=tmp_path)
+    assert doctor.returncode == 0, doctor.stdout
+    assert "stale" not in doctor.stdout

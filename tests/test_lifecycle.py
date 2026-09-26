@@ -25,7 +25,7 @@ def _make_closeable(planning, version="v0.1"):
     )
 
 
-# ---- T-101 atomic activation -------------------------------------------------
+# ---- T-101 coherent activation -------------------------------------------------
 
 def test_open_clears_stale_index_state(tmp_path):
     planning = _open(tmp_path)
@@ -144,7 +144,7 @@ def test_close_requires_release_complete(tmp_path):
     assert "Status" in result.stderr
 
 
-# ---- T-102 atomic clearing ----------------------------------------------------
+# ---- T-102 coherent clearing ----------------------------------------------------
 
 def test_close_clears_full_active_context(tmp_path):
     planning = _open(tmp_path)
@@ -162,3 +162,26 @@ def test_close_clears_full_active_context(tmp_path):
 
     doctor = run_plan("doctor", cwd=tmp_path)
     assert doctor.returncode == 0, doctor.stdout
+
+
+# ---- T-215 canonical empty-release state ---------------------------------------
+
+def test_cleared_index_uses_canonical_empty_state(tmp_path):
+    planning = _open(tmp_path)
+    _make_closeable(planning)
+
+    result = run_plan("close", "v0.1", cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+
+    text = (planning / "INDEX.md").read_text(encoding="utf-8")
+    # One consistent representation — never a mix of empty string,
+    # none, None, N/A or "not active".
+    assert "## Active Release\n\nnone" in text
+    assert "Path:\n\n[none]" in text
+    assert "## Current Focus\n\nNone." in text
+    assert "## Current Phase\n\nNone." in text
+    assert "Open the next release or select new work." in text
+    assert "## Current Blockers\n\nNone." in text
+    assert "Active Plan:\n[none]" in text
+    assert "Active Knowledge:\n[none]" in text
+    assert "Recent Log:\n[none]" in text

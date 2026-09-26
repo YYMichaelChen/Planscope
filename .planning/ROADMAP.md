@@ -13,10 +13,18 @@ three-tool verification moved to v1.1.0 P4.)
 
 ## v1.1.0
 
-Lifecycle/context/distribution hardening: atomic release activation
+Lifecycle/context/distribution hardening: coherent release activation
 and clearing, single-active-release invariant, strict phase statuses,
 `plan sync`, expanded doctor, collision-safe LOG rotation, unified
 project install, patch versions. (Complete — tagged v1.1.0.)
+
+## v1.1.1
+
+Distribution and validation patch: proper Claude plugin root with
+manifest, mechanically generated plugin payload from the canonical
+skill, distribution drift detection, close gates for missing PLAN.md
+and zero-phase plans, full PLAN → INDEX projection drift detection.
+(Complete — tagged v1.1.1.)
 
 ## Later
 

@@ -26,12 +26,26 @@ for the four-tool compatibility matrix.
 ├── templates/                INDEX / PROJECT / ROADMAP / PLAN / KNOWLEDGE / LOG / SUMMARY
 └── scripts/plan.py           helper CLI (Python 3, standard library only)
 
+plugins/planscope/            generated Claude plugin package (marketplace distribution)
+├── .claude-plugin/plugin.json    plugin manifest (hand-maintained)
+└── skills/planscope/         skill payload, byte-identical to the canonical source
+
 .claude-plugin/marketplace.json   Claude Code plugin marketplace manifest
 install.py                    syncs the skill into tool-specific directories
 tests/                        pytest suite, incl. four-tool compliance checks
 docs/                         product documentation (design, specs, compatibility)
 .planning/                    active planning state (dogfooded with Planscope)
 ```
+
+Ownership is explicit:
+
+- `.agents/skills/planscope/` — canonical source. Edit here only.
+- `plugins/planscope/skills/planscope/` — **generated** by
+  `python install.py --build-plugin`; never edit by hand.
+- `plugins/planscope/.claude-plugin/plugin.json` — the only hand-maintained
+  file inside the plugin package.
+- `.claude-plugin/marketplace.json` — marketplace index, points at
+  `./plugins/planscope`.
 
 `docs/` holds product documentation; `.planning/` holds active planning
 state. Keep the two distinct — documentation is not execution context.
@@ -67,7 +81,30 @@ python install.py --global-agents
 
 # verify what is installed where
 python install.py --check --project . --global --global-agents
+
+# regenerate the Claude plugin package from the canonical source
+python install.py --build-plugin
+
+# fail with PLUGIN DRIFTED if the plugin payload diverges from the canonical source
+python install.py --check-plugin
 ```
+
+## Distribution paths
+
+Three surfaces, one canonical skill:
+
+| Surface | Mechanism | Audience |
+|---|---|---|
+| `.agents/skills/planscope/` | `install.py --project` (copy) | Codex CLI / opencode / Kimi Code (native) |
+| `.claude/skills/planscope/` | `install.py --project` (mirror) | Claude Code (direct skill install) |
+| `plugins/planscope/` | `install.py --build-plugin` + marketplace | Claude Code (plugin / marketplace install) |
+
+The plugin package is how this repository is consumed through the
+Claude Code plugin marketplace: `.claude-plugin/marketplace.json` points
+at `./plugins/planscope`, whose `skills/planscope/` payload is
+mechanically generated from the canonical source. `install.py
+--check-plugin` enforces the canonical-source invariant (payload must be
+byte-identical) and is part of the release gate.
 
 When run inside the Planscope repository itself, the installer skips
 the canonical source at `.agents/skills/planscope` instead of

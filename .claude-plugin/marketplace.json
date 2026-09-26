@@ -3,11 +3,12 @@
   "owner": {
     "name": "YYMichaelChen"
   },
+  "description": "Scoped file-based planning for long-running software projects.",
   "plugins": [
     {
       "name": "planscope",
-      "source": "./.agents/skills/planscope",
-      "description": "Scoped file-based planning for long-running software projects: INDEX routing, release-scoped plans, selective knowledge loading, rolling logs, and release archiving."
+      "source": "./plugins/planscope",
+      "description": "Scoped file-based planning for long-running software projects."
     }
   ]
 }

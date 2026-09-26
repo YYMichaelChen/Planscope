@@ -1,0 +1,11 @@
+{
+  "name": "planscope",
+  "version": "1.1.1",
+  "description": "Scoped file-based planning for long-running software projects.",
+  "author": {
+    "name": "YYMichaelChen"
+  },
+  "homepage": "https://github.com/YYMichaelChen/Planscope",
+  "repository": "https://github.com/YYMichaelChen/Planscope",
+  "license": "MIT"
+}

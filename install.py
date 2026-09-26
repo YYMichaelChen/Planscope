@@ -15,12 +15,26 @@ Usage:
     python install.py --global [--link]           # -> ~/.claude/skills/planscope
     python install.py --global-agents [--link]    # -> ~/.agents/skills/planscope
     python install.py --check [--project PATH]    # report drift, no changes
+    python install.py --build-plugin              # generate plugins/planscope/ from the canonical source
+    python install.py --check-plugin              # verify the plugin payload matches the canonical source
 
 --project installs BOTH project-level surfaces from one command:
 the canonical copy at .agents/skills/planscope (native for Codex CLI,
 opencode and Kimi Code) and the .claude/skills/planscope mirror Claude
 Code requires. When the destination resolves to this repository's own
 canonical source, the installer skips it instead of overwriting itself.
+
+Distribution surfaces (v1.1.1):
+
+    .agents/skills/     = direct skill distribution (Codex/opencode/Kimi)
+    .claude/skills/     = direct Claude skill installation
+    plugins/planscope/  = Claude plugin / marketplace distribution
+
+plugins/planscope/ is a GENERATED artifact: --build-plugin copies the
+canonical skill tree into plugins/planscope/skills/planscope/, and
+--check-plugin fails with PLUGIN DRIFTED if the two ever diverge.
+The plugin-level manifest at plugins/planscope/.claude-plugin/plugin.json
+is the only hand-maintained file inside plugins/planscope/.
 """
 
 from __future__ import annotations
@@ -36,6 +50,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent
 SOURCE = REPO_ROOT / ".agents" / "skills" / "planscope"
 SKILL_NAME = "planscope"
+# Claude plugin / marketplace distribution package (v1.1.1). The skill
+# payload below is generated from SOURCE; only .claude-plugin/plugin.json
+# inside PLUGIN_ROOT is hand-maintained.
+PLUGIN_ROOT = REPO_ROOT / "plugins" / SKILL_NAME
+PLUGIN_SKILL = PLUGIN_ROOT / "skills" / SKILL_NAME
 
 
 def fail(msg: str) -> "SystemExit":
@@ -129,6 +148,28 @@ def install(dest: Path, link: bool, check: bool) -> int:
     return 0
 
 
+def build_plugin(check: bool) -> int:
+    """T-113/T-115: generate or verify the Claude plugin skill payload.
+
+    The payload at plugins/planscope/skills/planscope/ must stay
+    byte-equivalent to the canonical source; the plugin manifest next
+    to it is not part of the comparison.
+    """
+    src = require_source()
+    if check:
+        if trees_equal(src, PLUGIN_SKILL):
+            print(f"PLUGIN IN SYNC   {PLUGIN_SKILL}")
+            return 0
+        state = "missing" if not PLUGIN_SKILL.is_dir() else "differs from"
+        print(f"PLUGIN DRIFTED   {PLUGIN_SKILL} {state} {src}")
+        return 1
+
+    PLUGIN_ROOT.mkdir(parents=True, exist_ok=True)
+    copy_dir(src, PLUGIN_SKILL)
+    print(f"built     {src} -> {PLUGIN_SKILL}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Install the planscope skill.")
     targets = parser.add_argument_group("targets (at least one required)")
@@ -142,12 +183,23 @@ def main(argv=None) -> int:
                         help="junction/symlink instead of copy (live development)")
     parser.add_argument("--check", action="store_true",
                         help="report drift without changing anything")
+    parser.add_argument("--build-plugin", action="store_true",
+                        help="generate plugins/planscope/ skill payload from the canonical source")
+    parser.add_argument("--check-plugin", action="store_true",
+                        help="verify the plugin skill payload matches the canonical source")
     args = parser.parse_args(argv)
 
-    if not any([args.project is not None, args.global_claude, args.global_agents]):
-        parser.error("choose at least one target: --project, --global, --global-agents")
-
     rc = 0
+    if args.build_plugin:
+        rc |= build_plugin(check=False)
+    if args.check_plugin:
+        rc |= build_plugin(check=True)
+
+    if not any([args.project is not None, args.global_claude, args.global_agents]):
+        # Plugin modes are self-contained; installation targets stay required otherwise.
+        if args.build_plugin or args.check_plugin:
+            return rc
+        parser.error("choose at least one target: --project, --global, --global-agents")
     dests = []
     if args.project is not None:
         project = Path(args.project).resolve()

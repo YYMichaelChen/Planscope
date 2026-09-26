@@ -22,10 +22,39 @@ project-level surfaces in one command: the `.agents/skills/planscope`
 copy (skipped with `SKIP canonical source already present` when the
 destination is the Planscope repository itself) and the
 `.claude/skills/planscope` mirror. `--check --project <path>` validates
-both. For GitHub-based installs, Claude Code can also consume the
-plugin marketplace manifest at `.claude-plugin/marketplace.json`, which
-points at the same canonical source — there is still exactly one
-SKILL.md implementation.
+both.
+
+## Claude Code: two distribution paths
+
+Both paths deliver the same canonical Planscope skill — they differ only
+in packaging:
+
+1. **Direct skill path** — `install.py` copies the canonical source to
+   `.claude/skills/planscope/`. Claude Code discovers
+   `.claude/skills/<name>/SKILL.md` directly.
+2. **Plugin path** (v1.1.1) — `.claude-plugin/marketplace.json` points at
+   `./plugins/planscope`, a conventional Claude plugin root containing
+   `.claude-plugin/plugin.json` and `skills/planscope/SKILL.md`. The
+   payload under `plugins/planscope/skills/planscope/` is generated from
+   the canonical source by `install.py --build-plugin` and must stay
+   byte-identical to it; `install.py --check-plugin` reports
+   `PLUGIN IN SYNC` or `PLUGIN DRIFTED` and is part of the release gate.
+
+The plugin path exists specifically for Claude marketplace/plugin
+consumption; ordinary project installs continue to use the direct skill
+path and are unchanged.
+
+### Verified with (T-314)
+
+As of v1.1.1, validated with the official Claude Code CLI (v2.1.283):
+
+```
+claude plugin validate ./plugins/planscope     # plugin manifest + components
+claude plugin validate .                       # marketplace manifest
+```
+
+Both pass (`Validation passed`). Re-run these commands after changing
+`plugin.json` or `marketplace.json`.
 
 ## Frontmatter rules
 

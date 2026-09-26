@@ -52,6 +52,68 @@ def test_close_missing_release_fails(tmp_path):
     assert "No active release" in result.stderr
 
 
+# ---- T-211 missing PLAN.md gate ----------------------------------------------
+
+def test_close_rejects_missing_plan(tmp_path):
+    _, release = _fresh_release(tmp_path)
+    (release / "PLAN.md").unlink()
+    (release / "SUMMARY.md").write_text("# Summary\n", encoding="utf-8")
+    result = run_plan("close", "v0.1", cwd=tmp_path)
+    assert result.returncode == 2
+    assert "PLAN.md missing for v0.1" in result.stderr
+    assert "canonical plan" in result.stderr
+    # The release must not have been archived.
+    assert release.is_dir()
+
+
+# ---- T-212 zero-phase gate ---------------------------------------------------
+
+def _strip_all_phases(release):
+    plan = release / "PLAN.md"
+    text = plan.read_text(encoding="utf-8")
+    start = text.index("### P1")
+    end = text.index("## Blockers")
+    plan.write_text(text[:start] + text[end:], encoding="utf-8")
+
+
+def test_close_rejects_zero_phases(tmp_path):
+    _, release = _fresh_release(tmp_path)
+    _strip_all_phases(release)
+    # Mark the (phaseless) release complete so only the phase gate can fire.
+    plan = release / "PLAN.md"
+    plan.write_text(
+        plan.read_text(encoding="utf-8").replace(
+            "## Status\n\nin_progress", "## Status\n\ncomplete"
+        ),
+        encoding="utf-8",
+    )
+    (release / "SUMMARY.md").write_text("# Summary\n", encoding="utf-8")
+    result = run_plan("close", "v0.1", cwd=tmp_path)
+    assert result.returncode == 2
+    assert "no phases" in result.stderr
+    assert release.is_dir()
+
+
+# ---- T-312 force bypass ------------------------------------------------------
+
+def test_force_close_can_bypass_missing_plan(tmp_path):
+    planning, release = _fresh_release(tmp_path)
+    (release / "PLAN.md").unlink()
+    result = run_plan("close", "v0.1", "--force", cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert not release.exists()
+    assert (planning / "archive" / "v0.1").is_dir()
+
+
+def test_force_close_can_bypass_zero_phases(tmp_path):
+    planning, release = _fresh_release(tmp_path)
+    _strip_all_phases(release)
+    result = run_plan("close", "v0.1", "--force", cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert not release.exists()
+    assert (planning / "archive" / "v0.1").is_dir()
+
+
 def test_compact_clean_project(tmp_path):
     init_project(tmp_path)
     run_plan("open", "v0.1", cwd=tmp_path)
