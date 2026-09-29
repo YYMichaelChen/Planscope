@@ -12,9 +12,9 @@
 
 - D-xxx ...
 
-## Promoted Project Knowledge
+## Promoted Knowledge
 
-- ...
+- [item -> authoritative destination, e.g. docs/... / PROJECT.md]
 
 ## Known Limitations
 

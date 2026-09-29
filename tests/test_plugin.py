@@ -57,7 +57,7 @@ def test_plugin_manifest_name():
 
 def test_plugin_manifest_version():
     data = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert data["version"] == "1.1.1"
+    assert data["version"] == "1.1.2"
 
 
 def test_marketplace_points_to_plugin_root():

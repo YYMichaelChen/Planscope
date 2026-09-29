@@ -1,21 +1,15 @@
 # Project Context
 
-## Architecture
+## Authority Map
 
-Planscope is a Markdown-first agent skill. No database, no runtime,
-no build step.
+- Product requirements: docs/design.md (v1.0 design), docs/v1.1.0-specification.md, docs/v1.1.2-governance-boundary-hardening.md
+- Architecture: docs/design.md (section 4)
+- Release / compatibility policy: docs/compatibility.md
+- Test instructions: README.md (`python -m pytest tests/ --basetemp=.pytest-tmp`)
+- Operational runbooks: README.md (Install / Distribution paths)
+- Version / release evidence: Git tags + GitHub Releases; .planning/archive/<version>/SUMMARY.md
 
-### Canonical skill source
-
-`.agents/skills/planscope/` — the single source of truth
-(SKILL.md + templates/ + scripts/).
-
-### Distribution
-
-`install.py` mirrors the canonical source into tool-specific skill
-directories (copy, or junction/symlink with `--link`).
-
-## Core Constraints
+## Cross-Release Constraints
 
 - `.agents/skills/` is the discovery path shared by Codex, opencode and
   Kimi Code; Claude Code requires a mirror under `.claude/skills/`.
@@ -25,19 +19,12 @@ directories (copy, or junction/symlink with `--link`).
   must run on Windows and Unix.
 - The CLI performs mechanical operations only; semantic compaction and
   knowledge promotion remain agent work.
+- pytest temp root: use `--basetemp=.pytest-tmp` (the default temp
+  root is not writable on the primary Windows dev machine).
 
-## Development Conventions
+## Stable Context
 
-- `python -m pytest tests/ --basetemp=.pytest-tmp` must stay green
-  (the default pytest temp root is not writable on the primary
-  Windows dev machine); `tests/test_compat.py` is the four-tool
-  compliance guard.
-- Planning for this repo itself lives in `.planning/` (dogfooding).
-
-## Stable Domain Knowledge
-
-See `docs/compatibility.md` for the four-tool skill-loading matrix
-(discovery paths, frontmatter rules, portability constraints).
+Planning for this repo itself lives in `.planning/` (dogfooding).
 
 ## Long-Term Decisions
 
@@ -45,6 +32,9 @@ See `docs/compatibility.md` for the four-tool skill-loading matrix
 
 Decision:
 Canonical skill source lives at `.agents/skills/planscope/`.
+
+Authoritative destination:
+docs/compatibility.md
 
 Reason:
 It is the only project-level path discovered natively by three of the
@@ -55,6 +45,9 @@ four supported tools; Claude Code is served by a sync script.
 Decision:
 Skill renamed from working name `scoped-planning-with-files` to `planscope`.
 
+Authoritative destination:
+PROJECT.md — no better source
+
 Reason:
 Matches the repository name; satisfies opencode's name-equals-directory rule.
 
@@ -63,6 +56,9 @@ Matches the repository name; satisfies opencode's name-equals-directory rule.
 Decision:
 Markdown stays the only canonical planning state — no `state.json`,
 database or shadow caches in v1.x.
+
+Authoritative destination:
+PROJECT.md — no better source
 
 Reason:
 Mechanical consistency (release transitions, status validation, INDEX

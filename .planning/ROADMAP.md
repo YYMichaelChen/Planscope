@@ -26,6 +26,14 @@ skill, distribution drift detection, close gates for missing PLAN.md
 and zero-phase plans, full PLAN → INDEX projection drift detection.
 (Complete — tagged v1.1.1.)
 
+## v1.1.2
+
+Governance boundary hardening: Project Authority Boundary and
+Recoverability Rule as core invariants, routing-first PROJECT.md with
+Authority Map, destination-classified semantic close, PLAN closeout
+checklist enforced by `plan close`, structural closeout validation in
+`plan doctor`. (Complete — tagged v1.1.2.)
+
 ## Later
 
 Post-v1.1 real-usage observation (per v1.1.0 spec §36) before any new

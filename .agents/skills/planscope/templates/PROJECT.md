@@ -1,20 +1,22 @@
 # Project Context
 
-## Architecture
+## Authority Map
 
-[stable architecture overview]
+- Product requirements: [path or "not defined"]
+- Architecture: [path or "not defined"]
+- Release / compatibility policy: [path or "not defined"]
+- Test instructions: [path or "not defined"]
+- Operational runbooks: [path or "not defined"]
+- Version / release evidence: [path or "not defined"]
 
-## Core Constraints
+## Cross-Release Constraints
 
-- [long-lived technical constraints]
+- [constraint not reliably recoverable elsewhere]
 
-## Development Conventions
+## Stable Context
 
-- [stable conventions]
-
-## Stable Domain Knowledge
-
-...
+[Only context that future work needs and that does not have a better
+authoritative repository home.]
 
 ## Long-Term Decisions
 
@@ -23,6 +25,10 @@
 Decision:
 
 [decision]
+
+Authoritative destination:
+
+[path, or "PROJECT.md — no better source"]
 
 Reason:
 

@@ -2,23 +2,23 @@
 
 ## Active Release
 
-none
+v1.1.2
 
 Path:
 
-[none]
+releases/v1.1.2
 
 ## Current Focus
 
-None.
+T-013
 
 ## Current Phase
 
-None.
+P4
 
 ## Next Action
 
-Open the next release or select new work.
+T-013 complete semantic close and run plan close v1.1.2
 
 ## Current Blockers
 
@@ -33,13 +33,13 @@ Roadmap:
 ROADMAP.md
 
 Active Plan:
-[none]
+releases/v1.1.2/PLAN.md
 
 Active Knowledge:
-[none]
+releases/v1.1.2/KNOWLEDGE.md
 
 Recent Log:
-[none]
+releases/v1.1.2/LOG.md
 
 ## Critical Constraints
 

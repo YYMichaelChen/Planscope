@@ -19,6 +19,13 @@ Source:
 
 [file / documentation / experiment]
 
+Promotion target:
+
+[authoritative destination path / PROJECT.md / pending]
+
+Status:
+temporary | promoted
+
 Impact:
 
 [why future work should care]

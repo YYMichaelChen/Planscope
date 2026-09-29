@@ -45,6 +45,45 @@ Do not invent additional planning filenames.
 Templates for every planning file ship in the `templates/` directory
 next to this SKILL.md. Copy them instead of improvising new layouts.
 
+## Project Authority Boundary
+
+Planscope is not the authoritative project documentation system.
+
+`.planning/` owns:
+
+- active release execution state;
+- current task/phase/blocker/next-action state;
+- temporary recovery context;
+- release-scoped findings that cannot yet be promoted;
+- compact cross-release context that has no better authoritative home.
+
+Tracked repository artifacts should own durable project truth when
+available, including product requirements, architecture contracts,
+public procedures, schemas, compatibility policy, release evidence,
+and source-controlled facts.
+
+Do not duplicate an authoritative project rule into `.planning/`
+merely for convenience. Route to the authoritative source instead.
+
+When a planning finding becomes durable, promote it to the best
+authoritative project destination. Use `PROJECT.md` only when no
+better recoverable source exists.
+
+## Recoverability Rule
+
+Before writing durable information into `.planning/`, ask:
+
+1. Is this information already recoverable from source, tests,
+   configuration, tracked documentation, Git history, or another
+   authoritative artifact?
+2. If yes, store only a route/reference when planning context needs it.
+3. If no, keep it in the narrowest planning scope that can preserve it.
+4. When an authoritative destination later exists, promote it there
+   and remove the duplicate planning copy.
+
+This rule applies to `PROJECT.md`, `PLAN.md` and `KNOWLEDGE.md` alike,
+not only to knowledge findings.
+
 ## Helper CLI
 
 A lightweight helper ships at `scripts/plan.py` next to this SKILL.md.
@@ -64,7 +103,8 @@ Commands:
 - `compact` — mechanical hygiene: budget checks, illegal-file
   detection, INDEX pointer validation, LOG rotation
 - `close <version>` — final mechanical commit of a finished release:
-  archives it and clears the active working set
+  verifies phases, PLAN status, SUMMARY and the closeout checklist,
+  then archives it and clears the active working set
 - `doctor` — validate planning invariants, non-zero exit on failure
 
 The CLI performs mechanical operations only. Semantic work —
@@ -178,17 +218,38 @@ It contains:
 
 Keep it concise.
 
+INDEX may also carry one or two compact project-authority pointers in
+the Context Map when the active release directly depends on them. Do
+not turn INDEX into a documentation table of contents — the full
+authority map belongs in PROJECT.md or the project's own tracked
+documentation.
+
 ### PROJECT.md
 
-Stable cross-release project knowledge.
+A compact cross-release routing and residual-context document — not
+the default destination for all durable knowledge.
 
 Use for:
 
-- architecture
-- long-term constraints
-- stable conventions
-- durable domain knowledge
-- long-term decisions
+- project authority routing (`## Authority Map`);
+- compact cross-release constraints that are not reliably encoded
+  elsewhere;
+- durable decisions whose authoritative project destination does not
+  yet exist;
+- short context needed to interpret multiple releases.
+
+Prefer links or repository-relative paths to authoritative tracked
+artifacts.
+
+Do not duplicate:
+
+- product specifications;
+- architecture documents;
+- public runbooks;
+- schemas/contracts;
+- release evidence;
+- test manuals;
+- facts already directly recoverable from source/configuration.
 
 Do not store temporary task or release information here.
 
@@ -205,6 +266,12 @@ The active release plan.
 It should mostly describe unfinished work.
 
 Completed phases should be compressed into short summaries.
+
+PLAN describes intended release work and acceptance criteria. When a
+task changes a durable project rule, PLAN should name the
+authoritative artifact that must be updated. PLAN must not become the
+final specification for that rule unless the consuming project
+explicitly defines it as such.
 
 ### KNOWLEDGE.md
 
@@ -227,6 +294,11 @@ Allowed scopes:
 - task
 - release
 - project
+
+Each durable finding should also name a promotion target — the
+authoritative project destination it moves to once that destination
+exists (`pending` until known) — and a status (`temporary` /
+`promoted`).
 
 ### LOG.md
 
@@ -285,7 +357,8 @@ During compaction:
 - summarize completed PLAN phases
 - merge duplicate findings
 - remove obsolete task-scoped knowledge
-- promote durable project knowledge when appropriate
+- promote durable knowledge to its best authoritative destination
+  when appropriate
 - rotate old LOG content
 - refresh INDEX
 
@@ -300,17 +373,28 @@ Semantic close (your job), in order:
 
 1. verify the release acceptance criteria
 2. create SUMMARY.md
-3. review KNOWLEDGE.md and promote durable project-scoped knowledge
-   into PROJECT.md
-4. update ROADMAP.md
-5. set PLAN `## Status` to `complete`
+3. review release findings and decisions
+4. promote each durable item to its best authoritative project
+   destination (product specification, architecture document,
+   runbook, contract/schema, release-evidence location, or the
+   source itself)
+5. use PROJECT.md only for cross-release context with no better
+   recoverable home
+6. remove or compress planning copies that would compete with the
+   promoted authority
+7. update ROADMAP.md
+8. set PLAN `## Status` to `complete`
+9. complete every item of the PLAN `## Closeout` checklist
 
 Mechanical close (CLI):
 
-6. run `plan.py close <version>` — it verifies that PLAN.md exists
-   and defines at least one phase, that every phase is `complete`,
-   and that SUMMARY.md exists, then archives the release and clears
-   the active working set
+10. run `plan.py close <version>` — it verifies that PLAN.md exists
+    and defines at least one phase, that every phase is `complete`,
+    that PLAN `## Status` is `complete`, that SUMMARY.md exists, and
+    that the `## Closeout` checklist exists with all required items
+    checked; then it archives the release and clears the active
+    working set. `--force` bypasses these gates for exceptional
+    recovery only.
 
 ## Archive Boundary
 

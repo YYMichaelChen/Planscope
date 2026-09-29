@@ -49,3 +49,14 @@ None.
 ## Next Action
 
 T-001 [single concrete action]
+
+## Closeout
+
+- [ ] Acceptance criteria verified
+- [ ] Durable findings classified
+- [ ] Durable project rules promoted to authoritative repository sources where applicable
+- [ ] Release evidence written to its durable destination where applicable
+- [ ] Superseded planning copies removed or compressed
+- [ ] PROJECT.md contains no avoidable duplicate of an authoritative project rule
+- [ ] ROADMAP.md updated
+- [ ] SUMMARY.md created

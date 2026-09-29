@@ -15,8 +15,21 @@ Persistent Knowledge → Scoped Storage → Context Routing → Small Working Se
 
 See [docs/design.md](docs/design.md) for the full design rationale,
 [docs/v1.1.0-specification.md](docs/v1.1.0-specification.md) for the
-v1.1.0 hardening specification, and [docs/compatibility.md](docs/compatibility.md)
+v1.1.0 hardening specification,
+[docs/v1.1.2-governance-boundary-hardening.md](docs/v1.1.2-governance-boundary-hardening.md)
+for the v1.1.2 governance boundary update, and
+[docs/compatibility.md](docs/compatibility.md)
 for the four-tool compatibility matrix.
+
+## Authority boundary
+
+Planscope is not your project's documentation system. `.planning/`
+owns execution context and non-recoverable working knowledge; durable
+project truth (specifications, architecture, contracts, runbooks,
+release evidence) stays in the repository's authoritative artifacts.
+Closing a release promotes durable findings to those destinations, and
+`plan close` refuses to archive until the PLAN closeout checklist
+confirms that reconciliation happened.
 
 ## Repository layout
 

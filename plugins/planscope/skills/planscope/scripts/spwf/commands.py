@@ -12,6 +12,12 @@ v1.1.0 lifecycle rules enforced here:
 - mechanical close is the final commit of a release (T-105)
 - collision-safe LOG rotation (T-106)
 - PLAN is the work source; INDEX is its routing projection (T-201)
+
+v1.1.2 governance boundary rules:
+
+- normal close requires a complete PLAN closeout checklist, the
+  mechanical proof that authority reconciliation happened
+- doctor validates the closeout schema structurally (never semantically)
 """
 
 from __future__ import annotations
@@ -338,8 +344,9 @@ def cmd_close(args) -> int:
     """T-105: mechanical close is the FINAL commit of a release.
 
     Semantic close (summary, knowledge promotion, roadmap update,
-    PLAN Status = complete) must already have happened; this command
-    only verifies the gates, archives, and clears the active context.
+    PLAN Status = complete, closeout checklist) must already have
+    happened; this command only verifies the gates, archives, and
+    clears the active context.
     """
     version = core.validate_version(args.version)
     planning = core.require_planning_root(Path.cwd())
@@ -351,6 +358,7 @@ def cmd_close(args) -> int:
     if archive_dir.exists():
         raise PlanError(f"Archive target {archive_dir} already exists.")
 
+    plan = None
     plan_path = release_dir / "PLAN.md"
     if not plan_path.is_file():
         # T-211: normal close must be independently safe — it cannot rely
@@ -393,6 +401,22 @@ def cmd_close(args) -> int:
             f"SUMMARY.md missing for {version}. Generate the release summary "
             "first (see SKILL.md 'Release Closing'), or re-run with --force."
         )
+
+    # v1.1.2: the closeout checklist is the final gate. The CLI checks
+    # only that the required items exist and are checked — the semantic
+    # reconciliation they represent is the agent's job.
+    if plan is not None and not args.force:
+        if plan.closeout is None:
+            raise PlanError(
+                f"PLAN.md for {version} has no '## Closeout' checklist. "
+                "Add the closeout checklist (see templates/PLAN.md) and "
+                "complete it, or re-run with --force."
+            )
+        unchecked = plan.unchecked_closeout
+        if unchecked:
+            raise PlanError(
+                "PLAN closeout is incomplete:\n- " + "\n".join(unchecked)
+            )
 
     archive_dir.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(release_dir), str(archive_dir))
@@ -497,6 +521,34 @@ def cmd_doctor(args) -> int:
                 )
             if plan.phases and not plan.invalid_phases:
                 ok(f"all {len(plan.phases)} phase statuses valid")
+
+            # v1.1.2: structural closeout validation. A missing section
+            # marks a legacy (pre-v1.1.2) plan — warn, don't fail, so
+            # existing projects can migrate. Everything else is a hard
+            # structural check; the CLI never judges item semantics.
+            if plan.closeout is None:
+                warn(
+                    "PLAN.md has no '## Closeout' section (pre-v1.1.2 plan); "
+                    "add the checklist before close"
+                )
+            else:
+                present = {c.text for c in plan.closeout}
+                missing_items = [
+                    item for item in core.CLOSEOUT_ITEMS if item not in present
+                ]
+                if missing_items:
+                    fail(
+                        "PLAN.md Closeout missing required items: "
+                        + ", ".join(missing_items)
+                    )
+                unchecked = [c.text for c in plan.closeout if not c.checked]
+                if unchecked and plan.status == "complete":
+                    fail(
+                        "PLAN Status is 'complete' but closeout items are "
+                        "unchecked: " + ", ".join(unchecked)
+                    )
+                elif not unchecked and not missing_items:
+                    ok("PLAN closeout checklist complete")
 
     # INDEX <-> actual release directory consistency.
     if index is not None:

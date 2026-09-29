@@ -48,6 +48,22 @@ PHASE_STATUSES = {"pending", "in_progress", "complete"}
 # Canonical release-level PLAN Status values.
 RELEASE_STATUSES = {"in_progress", "complete"}
 
+# Canonical PLAN closeout checklist (v1.1.2, governance boundary
+# hardening). A normal close requires a `## Closeout` section in which
+# every one of these items is present and checked. The checklist is the
+# mechanical proof that authority reconciliation was acknowledged; the
+# CLI never attempts semantic repository analysis.
+CLOSEOUT_ITEMS = (
+    "Acceptance criteria verified",
+    "Durable findings classified",
+    "Durable project rules promoted to authoritative repository sources where applicable",
+    "Release evidence written to its durable destination where applicable",
+    "Superseded planning copies removed or compressed",
+    "PROJECT.md contains no avoidable duplicate of an authoritative project rule",
+    "ROADMAP.md updated",
+    "SUMMARY.md created",
+)
+
 VERSION_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?$")
 
 # Lines rotated out of LOG.md are kept here; archive/ is excluded from
@@ -186,6 +202,12 @@ class PhaseInfo:
 
 
 @dataclass
+class CloseoutItem:
+    text: str
+    checked: bool
+
+
+@dataclass
 class PlanInfo:
     status: str
     current_phase: str
@@ -193,6 +215,23 @@ class PlanInfo:
     next_action: str
     blockers: str
     phases: list  # list[PhaseInfo], in document order
+    # list[CloseoutItem] when a `## Closeout` section exists, else None
+    # (legacy pre-v1.1.2 plan).
+    closeout: Optional[list] = None
+
+    @property
+    def unchecked_closeout(self) -> list:
+        """Closeout items that block a normal close.
+
+        Combines unchecked checklist entries with canonical required
+        items that are missing from the section entirely.
+        """
+        if self.closeout is None:
+            return list(CLOSEOUT_ITEMS)
+        unchecked = [c.text for c in self.closeout if not c.checked]
+        present = {c.text for c in self.closeout}
+        unchecked += [item for item in CLOSEOUT_ITEMS if item not in present]
+        return unchecked
 
     @property
     def open_phases(self) -> list:
@@ -244,6 +283,17 @@ def parse_plan(plan_path: Path) -> PlanInfo:
         body = section_body(text, heading) or ""
         phases.append(PhaseInfo(heading=heading, status=_phase_status(body)))
 
+    closeout_body = section_body(text, "Closeout")
+    closeout = None
+    if closeout_body is not None:
+        closeout = []
+        for line in closeout_body.splitlines():
+            match = re.match(r"^-\s*\[([ xX])\]\s*(.+?)\s*$", line.strip())
+            if match:
+                closeout.append(
+                    CloseoutItem(text=match.group(2), checked=match.group(1) != " ")
+                )
+
     return PlanInfo(
         status=value_of("Status"),
         current_phase=phase,
@@ -251,6 +301,7 @@ def parse_plan(plan_path: Path) -> PlanInfo:
         next_action=value_of("Next Action"),
         blockers=value_of("Blockers"),
         phases=phases,
+        closeout=closeout,
     )
 
 

@@ -18,6 +18,8 @@ def _make_closeable(planning, version="v0.1"):
         text.replace("## Status\n\nin_progress", "## Status\n\ncomplete")
         .replace("Status:\nin_progress", "Status:\ncomplete")
         .replace("Status:\npending", "Status:\ncomplete")
+        # v1.1.2: complete the closeout checklist.
+        .replace("- [ ]", "- [x]")
     )
     plan.write_text(text, encoding="utf-8")
     (planning / "releases" / version / "SUMMARY.md").write_text(
