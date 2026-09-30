@@ -6,3 +6,7 @@ __pycache__/
 # local dev junction created by `install.py --project . --link`
 # (canonical skill source already lives at .agents/skills/planscope/)
 .claude/skills/planscope
+
+# local development guidance & release specs (not product documentation)
+# naming rule: dev/v<version>-<topic>.md
+dev/

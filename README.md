@@ -13,13 +13,11 @@ loading the entire planning history into the agent's context window.
 Persistent Knowledge → Scoped Storage → Context Routing → Small Working Set → Agent
 ```
 
-See [docs/design.md](docs/design.md) for the full design rationale,
-[docs/v1.1.0-specification.md](docs/v1.1.0-specification.md) for the
-v1.1.0 hardening specification,
-[docs/v1.1.2-governance-boundary-hardening.md](docs/v1.1.2-governance-boundary-hardening.md)
-for the v1.1.2 governance boundary update, and
-[docs/compatibility.md](docs/compatibility.md)
-for the four-tool compatibility matrix.
+See [docs/design.md](docs/design.md) for the full design rationale and
+[docs/compatibility.md](docs/compatibility.md) for the four-tool
+compatibility matrix. Release-specific development plans and
+specifications live in the untracked local `dev/` directory
+(`dev/v<version>-<topic>.md`).
 
 ## Authority boundary
 

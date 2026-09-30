@@ -2,7 +2,7 @@
 
 ## Authority Map
 
-- Product requirements: docs/design.md (v1.0 design), docs/v1.1.0-specification.md, docs/v1.1.2-governance-boundary-hardening.md
+- Product requirements: docs/design.md (v1.0 design); release specs in local dev/ (untracked)
 - Architecture: docs/design.md (section 4)
 - Release / compatibility policy: docs/compatibility.md
 - Test instructions: README.md (`python -m pytest tests/ --basetemp=.pytest-tmp`)
